@@ -10,8 +10,9 @@ const routes = [
                 payload: Joi.object({
                     username: Joi.string().min(3).max(30).required(),
                     gender: Joi.string().valid('male', 'female').required(),
-                    password: Joi.string().min(6).required(),
-                    email: Joi.string().email().required()
+                    email: Joi.string().email().required(),
+                    password: Joi.string().min(6).required()
+                    
                 })
             }
         },
@@ -29,6 +30,19 @@ const routes = [
             }
         },
         handler: handler.login
+    },
+    {
+        method: 'DELETE',
+        path: '/delete',
+        options: {
+            validate: {
+                payload: Joi.object({
+                    username: Joi.string().required(),
+                    password: Joi.string().required()
+                })
+            }
+        },
+        handler: handler.deleteUser
     }
 ];
 
