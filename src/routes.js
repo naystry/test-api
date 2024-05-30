@@ -59,6 +59,18 @@ const routes = [
             }
         },
         handler: handler.editUser
+    },
+    {
+        method: 'GET',
+        path: '/user',
+        options: {
+            validate: {
+                query: Joi.object({
+                    username: Joi.string().required()
+                })
+            }
+        },
+        handler: handler.getUser
     }
 ];
 

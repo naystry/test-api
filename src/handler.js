@@ -102,5 +102,23 @@ const editUser = async (request, h) => {
     }
 };
 
+const getUser = async (request, h) => {
+    const { username } = request.query;
+    const connection = request.server.app.connection;
+    try {
+        const [rows] = await connection.execute(
+            'SELECT username, gender, email FROM users WHERE username = ?',
+            [username]
+        );
+        if (rows.length === 0) {
+            return h.response({ success: false, message: 'User not found!' }).code(404);
+        }
+        const user = rows[0];
+        return h.response({ success: true, user }).code(200);
+    } catch (err) {
+        return h.response({ success: false, message: 'Failed to fetch user data!' }).code(500);
+    }
+};
 
-module.exports = { register, login, deleteUser, editUser };
+
+module.exports = { register, login, deleteUser, editUser, getUser };
