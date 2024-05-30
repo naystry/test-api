@@ -43,6 +43,22 @@ const routes = [
             }
         },
         handler: handler.deleteUser
+    },
+    {
+        method: 'PUT',
+        path: '/edit',
+        options: {
+            validate: {
+                payload: Joi.object({
+                    username: Joi.string().required(),
+                    newUsername: Joi.string().min(3).max(30).optional(),
+                    newGender: Joi.string().valid('male', 'female').optional(),
+                    newPassword: Joi.string().min(6).optional(),
+                    newEmail: Joi.string().email().optional()
+                })
+            }
+        },
+        handler: handler.editUser
     }
 ];
 

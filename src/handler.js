@@ -65,5 +65,42 @@ const deleteUser = async (request, h) => {
     }
 };
 
+const editUser = async (request, h) => {
+    const { username, newUsername, newGender, newPassword, newEmail } = request.payload;
+    const connection = request.server.app.connection;
+    try {
+        const [rows] = await connection.execute(
+            'SELECT * FROM users WHERE username = ?',
+            [username]
+        );
+        if (rows.length === 0) {
+            return h.response({ success: false, message: 'User not found!' }).code(404);
+        }
 
-module.exports = { register, login, deleteUser };
+        const updates = {};
+        if (newUsername) updates.username = newUsername;
+        if (newGender) updates.gender = newGender;
+        if (newPassword) updates.password = await bcrypt.hash(newPassword, 10);
+        if (newEmail) updates.email = newEmail;
+
+        const updateKeys = Object.keys(updates);
+        const updateValues = Object.values(updates);
+
+        if (updateKeys.length === 0) {
+            return h.response({ success: false, message: 'No updates provided!' }).code(400);
+        }
+
+        const updateQuery = `UPDATE users SET ${updateKeys.map(key => `${key} = ?`).join(', ')} WHERE username = ?`;
+        await connection.execute(
+            updateQuery,
+            [...updateValues, username]
+        );
+
+        return h.response({ success: true, message: 'User updated successfully!' }).code(200);
+    } catch (err) {
+        return h.response({ success: false, message: 'Update failed!' }).code(500);
+    }
+};
+
+
+module.exports = { register, login, deleteUser, editUser };
