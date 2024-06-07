@@ -51,53 +51,49 @@ const login = async (request, h) => {
     try {
         // Lakukan query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT * FROM users WHERE username = ?';
-        const [user] = await pool.query(query, [username]);
+        const [userRows] = await pool.query(query, [username]);
 
         // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!user || !user.length) {
-            const response = h.response({
+        if (!userRows || userRows.length === 0) {
+            return h.response({
                 status: 'fail',
-                message: 'Username tidak ditemukan'
-            });
-            response.code(404); // Gunakan kode status 404 untuk username tidak ditemukan
-            return response;
+                message: 'Username not found'
+            }).code(404);
         }
 
+        const user = userRows[0];
+
         // Periksa apakah password yang diberikan cocok dengan password yang di-hash
-        const match = await bcrypt.compare(password, user[0].password);
+        const match = await bcrypt.compare(password, user.password);
         if (!match) {
-            const response = h.response({
+            return h.response({
                 status: 'fail',
-                message: 'Password salah'
-            });
-            response.code(401); // Gunakan kode status 401 untuk password salah
-            return response;
+                message: 'Incorrect password'
+            }).code(401);
         }
 
         // Jika username dan password cocok, kembalikan respons sukses
-        const response = h.response({
+        return h.response({
             status: 'success',
-            message: 'Login berhasil',
+            message: 'Login successful',
             user: {
-                id: user[0].id,
-                username: user[0].username,
-                email: user[0].email,
-                gender: user[0].gender
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                gender: user.gender
             }
-        });
-        response.code(200); // Gunakan kode status 200 untuk login berhasil
-        return response;
+        }).code(200);
     } catch (error) {
         // Tangani kesalahan server
-        const response = h.response({
+        return h.response({
             status: 'fail',
-            message: 'Gagal melakukan login',
+            message: 'Failed to login',
             error: error.message
-        });
-        response.code(500); // Gunakan kode status 500 untuk kesalahan server
-        return response;
+        }).code(500);
     }
 };
+
+
 
 
 const deleteUser = async (request, h) => {
