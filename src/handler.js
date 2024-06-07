@@ -34,7 +34,6 @@ const createUnixSocketPool = async config => {
         response.code(201); // Gunakan kode status 201 untuk registrasi berhasil
         return response;
     } catch (error) {
-        // Buat respons jika terjadi kesalahan saat registrasi
         const response = h.response({
             status: 'fail',
             message: 'Gagal melakukan registrasi',
@@ -57,7 +56,7 @@ const login = async (request, h) => {
         if (!userRows || userRows.length === 0) {
             return h.response({
                 status: 'fail',
-                message: 'username tidak ditemukan'
+                message: 'Username not found'
             }).code(404);
         }
 
@@ -76,12 +75,7 @@ const login = async (request, h) => {
         return h.response({
             status: 'success',
             message: 'Login successful',
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                gender: user.gender
-            }
+            
         }).code(200);
     } catch (error) {
         // Tangani kesalahan server
