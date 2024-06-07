@@ -32,7 +32,7 @@ const createUnixSocketPool = async config => {
         return h.response({ success: true, message: 'User registered successfully!' }).code(201);
     } catch (err) {
         console.error('Error:', err);
-        return h.response({ success: false, message: 'Registration failed!' }).code(500);
+        return h.response({ success: false, result: error.message, }).code(500);
     }
 };
 
