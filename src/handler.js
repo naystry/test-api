@@ -62,6 +62,14 @@ const login = async (request, h) => {
 
         const user = userRows[0];
 
+        // Periksa apakah objek user tidak bernilai undefined sebelum mencoba mengakses properti password
+        if (!user || !user.password) {
+            return h.response({
+                status: 'fail',
+                message: 'User data is incomplete'
+            }).code(500);
+        }
+
         // Periksa apakah password yang diberikan cocok dengan password yang di-hash
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
@@ -75,7 +83,12 @@ const login = async (request, h) => {
         return h.response({
             status: 'success',
             message: 'Login successful',
-            
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                gender: user.gender
+            }
         }).code(200);
     } catch (error) {
         // Tangani kesalahan server
@@ -86,6 +99,9 @@ const login = async (request, h) => {
         }).code(500);
     }
 };
+
+module.exports = { login };
+
 
 
 
