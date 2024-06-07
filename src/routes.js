@@ -3,6 +3,18 @@ const Joi = require('joi');
 
 const routes = [
     {
+        path: '/test',
+        method: 'GET',
+        handler: (request, h) => {
+            const response = h.response({
+                status: 'success',
+                message: 'testing',
+            });
+            response.code(200);
+            return response;
+        }
+    },
+    {
         path: '/register', // Path untuk register
         method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
         handler: register 
