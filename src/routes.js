@@ -3,21 +3,10 @@ const Joi = require('joi');
 
 const routes = [
     {
-        method: 'POST',
-        path: '/register',
-        options: {
-            validate: {
-                payload: Joi.object({
-                    username: Joi.string().min(3).max(30).required(),
-                    gender: Joi.string().valid('male', 'female').required(),
-                    email: Joi.string().email().required(),
-                    password: Joi.string().min(6).required()
-                    
-                })
-            }
-        },
-        handler: handler.register
-    },
+        path: '/register', // Path untuk register
+        method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
+        handler: register // Handler untuk menangani permintaan register
+    },
     {
         method: 'POST',
         path: '/login',
