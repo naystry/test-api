@@ -20,17 +20,9 @@ const routes = [
         handler: register 
     },
     {
-        method: 'POST',
-        path: '/login',
-        options: {
-            validate: {
-                payload: Joi.object({
-                    username: Joi.string().required(),
-                    password: Joi.string().required()
-                })
-            }
-        },
-        handler: login
+        path: '/login', // Path untuk login
+        method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
+        handler: login // Handler untuk menangani permintaan login
     },
     {
         method: 'DELETE',
@@ -47,31 +39,13 @@ const routes = [
     },
     {
         method: 'PUT',
-        path: '/edit',
-        options: {
-            validate: {
-                payload: Joi.object({
-                    username: Joi.string().required(),
-                    newUsername: Joi.string().min(3).max(30).optional(),
-                    newGender: Joi.string().valid('male', 'female').optional(),
-                    newPassword: Joi.string().min(6).optional(),
-                    newEmail: Joi.string().email().optional()
-                })
-            }
-        },
+        path: '/editUser/{username}',
         handler: editUser
     },
     {
-        method: 'GET',
-        path: '/user',
-        options: {
-            validate: {
-                query: Joi.object({
-                    username: Joi.string().required()
-                })
-            }
-        },
-        handler: getUser
+        path: '/users/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
+        method: 'GET', // Method HTTP yang digunakan (GET untuk membaca data)
+        handler: getUser // Handler untuk menangani permintaan mendapatkan data pengguna
     }
 ];
 

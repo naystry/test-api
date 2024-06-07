@@ -48,26 +48,57 @@ const createUnixSocketPool = async config => {
 
 const login = async (request, h) => {
     const { username, password } = request.payload;
-    const connection = request.server.app.connection;
     try {
-        const [rows] = await connection.execute(
-            'SELECT * FROM users WHERE username = ?',
-            [username]
-        );
-        if (rows.length === 0) {
-            return h.response({ success: false, message: 'Invalid username or password!' }).code(401);
+        // Lakukan query untuk mendapatkan data pengguna berdasarkan username
+        const query = 'SELECT * FROM users WHERE username = ?';
+        const [user] = await pool.query(query, [username]);
+
+        // Periksa apakah pengguna dengan username yang diberikan ditemukan
+        if (!user || !user.length) {
+            const response = h.response({
+                status: 'fail',
+                message: 'Username tidak ditemukan'
+            });
+            response.code(404); // Gunakan kode status 404 untuk username tidak ditemukan
+            return response;
         }
-        const user = rows[0];
-        const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) {
-            return h.response({ success: false, message: 'Invalid username or password!' }).code(401);
+
+        // Periksa apakah password yang diberikan cocok dengan password yang di-hash
+        const match = await bcrypt.compare(password, user[0].password);
+        if (!match) {
+            const response = h.response({
+                status: 'fail',
+                message: 'Password salah'
+            });
+            response.code(401); // Gunakan kode status 401 untuk password salah
+            return response;
         }
-        const token = jwt.sign({ id: user.id, username: user.username }, 'your_jwt_secret', { expiresIn: '1h' });
-        return h.response({ success: true, token }).code(200);
-    } catch (err) {
-        return h.response({ success: false, message: 'Login failed!' }).code(500);
+
+        // Jika username dan password cocok, kembalikan respons sukses
+        const response = h.response({
+            status: 'success',
+            message: 'Login berhasil',
+            user: {
+                id: user[0].id,
+                username: user[0].username,
+                email: user[0].email,
+                gender: user[0].gender
+            }
+        });
+        response.code(200); // Gunakan kode status 200 untuk login berhasil
+        return response;
+    } catch (error) {
+        // Tangani kesalahan server
+        const response = h.response({
+            status: 'fail',
+            message: 'Gagal melakukan login',
+            error: error.message
+        });
+        response.code(500); // Gunakan kode status 500 untuk kesalahan server
+        return response;
     }
 };
+
 
 const deleteUser = async (request, h) => {
     const { username, password } = request.payload;
@@ -96,13 +127,11 @@ const deleteUser = async (request, h) => {
 };
 
 const editUser = async (request, h) => {
-    const { username, newUsername, newGender, newPassword, newEmail } = request.payload;
-    const connection = request.server.app.connection;
+    const { username } = request.params;
+    const { newUsername, newGender, newPassword, newEmail } = request.payload;
+
     try {
-        const [rows] = await connection.execute(
-            'SELECT * FROM users WHERE username = ?',
-            [username]
-        );
+        const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
         if (rows.length === 0) {
             return h.response({ success: false, message: 'User not found!' }).code(404);
         }
@@ -120,33 +149,60 @@ const editUser = async (request, h) => {
             return h.response({ success: false, message: 'No updates provided!' }).code(400);
         }
 
-        const updateQuery = `UPDATE users SET ${updateKeys.map(key => `${key} = ?`).join(', ')} WHERE username = ?`;
-        await connection.execute(
-            updateQuery,
-            [...updateValues, username]
-        );
+        const query = `UPDATE users SET ${updateKeys.map(key => `${key} = ?`).join(', ')} WHERE username = ?`;
+        const queryParams = [...updateValues, username];
+        
+        await pool.query(query, queryParams);
 
         return h.response({ success: true, message: 'User updated successfully!' }).code(200);
-    } catch (err) {
-        return h.response({ success: false, message: 'Update failed!' }).code(500);
+    } catch (error) {
+        return h.response({ success: false, message: 'Update failed!', error: error.message }).code(500);
     }
 };
 
+
+
 const getUser = async (request, h) => {
-    const { username } = request.query;
-    const connection = request.server.app.connection;
+    const { username } = request.params; // Ambil nilai username dari parameter URL
     try {
-        const [rows] = await connection.execute(
-            'SELECT username, gender, email FROM users WHERE username = ?',
-            [username]
-        );
-        if (rows.length === 0) {
-            return h.response({ success: false, message: 'User not found!' }).code(404);
+        // Lakukan query untuk mendapatkan data pengguna berdasarkan username
+        const query = 'SELECT username, gender, email FROM users WHERE username = ?';
+        const [user] = await pool.query(query, [username]);
+
+        // Periksa apakah pengguna dengan username yang diberikan ditemukan
+        if (!user || !user.length) {
+            const response = h.response({
+                status: 'fail',
+                message: 'Username tidak ditemukan'
+            });
+            response.code(404); // Gunakan kode status 404 untuk username tidak ditemukan
+            return response;
         }
-        const user = rows[0];
-        return h.response({ success: true, user }).code(200);
-    } catch (err) {
-        return h.response({ success: false, message: 'Failed to fetch user data!' }).code(500);
+
+        // Jika username ditemukan, kembalikan data pengguna dalam respons
+        const userData = {
+            username: user[0].username,
+            gender: user[0].gender,
+            email: user[0].email
+            // Jika kamu ingin menambahkan kolom-kolom lain, tambahkan di sini
+        };
+
+        const response = h.response({
+            status: 'success',
+            message: 'Data pengguna ditemukan',
+            user: userData
+        });
+        response.code(200); // Gunakan kode status 200 untuk permintaan berhasil
+        return response;
+    } catch (error) {
+        // Tangani kesalahan server
+        const response = h.response({
+            status: 'fail',
+            message: 'Gagal mengambil data pengguna',
+            error: error.message
+        });
+        response.code(500); // Gunakan kode status 500 untuk kesalahan server
+        return response;
     }
 };
 
