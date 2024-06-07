@@ -1,11 +1,11 @@
-const handler = require('./handler');
+const { register, login, deleteUser, editUser, getUser } = require('./handler.js');
 const Joi = require('joi');
 
 const routes = [
     {
         path: '/register', // Path untuk register
         method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
-        handler: register // Handler untuk menangani permintaan register
+        handler: register 
     },
     {
         method: 'POST',
@@ -18,7 +18,7 @@ const routes = [
                 })
             }
         },
-        handler: handler.login
+        handler: login
     },
     {
         method: 'DELETE',
@@ -31,7 +31,7 @@ const routes = [
                 })
             }
         },
-        handler: handler.deleteUser
+        handler: deleteUser
     },
     {
         method: 'PUT',
@@ -47,7 +47,7 @@ const routes = [
                 })
             }
         },
-        handler: handler.editUser
+        handler: editUser
     },
     {
         method: 'GET',
@@ -59,7 +59,7 @@ const routes = [
                 })
             }
         },
-        handler: handler.getUser
+        handler: getUser
     }
 ];
 

@@ -1,5 +1,5 @@
 const Hapi = require('@hapi/hapi');
-const routes = require('./routes');
+const routes = require('./routes.js');
 // const { initDatabase } = require('./config');
 
 const init = async () => {

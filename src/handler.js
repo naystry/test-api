@@ -18,19 +18,33 @@ const createUnixSocketPool = async config => {
 
   const register = async (request, h) => {
     const { username, gender, email, password } = request.payload;
-    const connection = request.server.app.connection;
     try {
+        // Lakukan proses hashing pada password sebelum menyimpannya
         const hashedPassword = await bcrypt.hash(password, 10);
-        const [result] = await connection.execute(
-            'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?, ?)',
-            [username, gender, email, hashedPassword]
-        );
-        return h.response({ success: true, message: 'User registered successfully!' }).code(201);
-    } catch (err) {
-        console.error('Error:', err); // Menampilkan error ke konsol
-        return h.response({ success: false, message: 'Registration failed!' }).code(500);
+        
+        // Lakukan query untuk memasukkan data pengguna baru ke dalam database
+        const query = 'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?, ?)';
+        const queryResult = await pool.query(query, [username, gender, email, hashedPassword]);
+
+        // Buat respons jika registrasi berhasil
+        const response = h.response({
+            status: 'success',
+            message: 'User berhasil terdaftar'
+        });
+        response.code(201); // Gunakan kode status 201 untuk registrasi berhasil
+        return response;
+    } catch (error) {
+        // Buat respons jika terjadi kesalahan saat registrasi
+        const response = h.response({
+            status: 'fail',
+            message: 'Gagal melakukan registrasi',
+            error: error.message // Tambahkan pesan kesalahan untuk informasi lebih lanjut
+        });
+        response.code(500); // Gunakan kode status 500 untuk kesalahan server
+        return response;
     }
 };
+
 
 const login = async (request, h) => {
     const { username, password } = request.payload;
