@@ -18,8 +18,12 @@ const createUnixSocketPool = async config => {
 
   const register = async (request, h) => {
     const { username, gender, email, password } = request.payload;
-    const connection = request.server.app.connection;
     try {
+        const connection = request.server.app.connection;
+        if (!connection) {
+            throw new Error('Database connection is not available.');
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await connection.execute(
             'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?, ?)',
@@ -27,10 +31,11 @@ const createUnixSocketPool = async config => {
         );
         return h.response({ success: true, message: 'User registered successfully!' }).code(201);
     } catch (err) {
-        console.error('Error:', err); // Menampilkan error ke konsol
+        console.error('Error:', err);
         return h.response({ success: false, message: 'Registration failed!' }).code(500);
     }
 };
+
 
 const login = async (request, h) => {
     const { username, password } = request.payload;
