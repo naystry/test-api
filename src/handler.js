@@ -49,8 +49,7 @@ const login = async (request, h) => {
     const { username, password } = request.payload;
     try {
         // Lakukan query untuk mendapatkan data pengguna berdasarkan username
-        const query = 'SELECT * FROM users WHERE username = ?';
-        const [userRows] = await pool.query(query, [username]);
+        const [userRows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
 
         // Periksa apakah pengguna dengan username yang diberikan ditemukan
         if (!userRows || userRows.length === 0) {
@@ -62,7 +61,7 @@ const login = async (request, h) => {
 
         const user = userRows[0];
 
-        // Periksa apakah objek user tidak bernilai undefined sebelum mencoba mengakses properti password
+        // Periksa apakah objek user tidak bernilai undefined dan data pengguna lengkap
         if (!user || !user.password) {
             return h.response({
                 status: 'fail',
@@ -83,12 +82,6 @@ const login = async (request, h) => {
         return h.response({
             status: 'success',
             message: 'Login successful',
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                gender: user.gender
-            }
         }).code(200);
     } catch (error) {
         // Tangani kesalahan server
@@ -99,10 +92,6 @@ const login = async (request, h) => {
         }).code(500);
     }
 };
-
-module.exports = { login };
-
-
 
 
 
