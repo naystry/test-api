@@ -57,7 +57,7 @@ const login = async (request, h) => {
         if (!userRows || userRows.length === 0) {
             return h.response({
                 status: 'fail',
-                message: 'Username not found'
+                message: 'username tidak ditemukan'
             }).code(404);
         }
 
