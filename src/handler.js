@@ -16,19 +16,19 @@ const createUnixSocketPool = async config => {
       pool = await createUnixSocketPool();
   })();
 
-const register = async (request, h) => {
+  const register = async (request, h) => {
     const { username, gender, email, password } = request.payload;
     const connection = request.server.app.connection;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await connection.execute(
-            'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?,?)',
-            [username, gender.toLowerCase(), email, hashedPassword]
+            'INSERT INTO users (username, gender, email,password) VALUES (?, ?, ?,?)',
+            [username, gender, email, hashedPassword]
         );
         return h.response({ success: true, message: 'User registered successfully!' }).code(201);
     } catch (err) {
         return h.response({ success: false, message: 'Registration failed!' }).code(500);
-    }
+    }
 };
 
 const login = async (request, h) => {

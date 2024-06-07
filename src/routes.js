@@ -17,7 +17,7 @@ const routes = [
             }
         },
         handler: handler.register
-    },
+    },
     {
         method: 'POST',
         path: '/login',
