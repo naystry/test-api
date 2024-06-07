@@ -23,7 +23,7 @@ const register = async (request, h) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await connection.execute(
             'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?,?)',
-            [username, gender, email, hashedPassword]
+            [username, gender.toLowerCase(), email, hashedPassword]
         );
         return h.response({ success: true, message: 'User registered successfully!' }).code(201);
     } catch (err) {
