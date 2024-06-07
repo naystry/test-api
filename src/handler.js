@@ -22,13 +22,14 @@ const createUnixSocketPool = async config => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await connection.execute(
-            'INSERT INTO users (username, gender, email,password) VALUES (?, ?, ?,?)',
+            'INSERT INTO users (username, gender, email, password) VALUES (?, ?, ?, ?)',
             [username, gender, email, hashedPassword]
         );
         return h.response({ success: true, message: 'User registered successfully!' }).code(201);
     } catch (err) {
+        console.error('Error:', err); // Menampilkan error ke konsol
         return h.response({ success: false, message: 'Registration failed!' }).code(500);
-    }
+    }
 };
 
 const login = async (request, h) => {
