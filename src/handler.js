@@ -47,14 +47,14 @@ const createUnixSocketPool = async config => {
 
 
 const login = async (request, h) => {
-    const { username, password } = request.payload;
+    const { email, password } = request.payload;
 
     try {
         const query = 'SELECT * FROM users WHERE email = ?';
-           const [user] = await pool.query(query, [username]);
-        
+        const [user] = await pool.query(query, [email]);
 
         if (!user) {
+            console.log('User not found for email:', email); // Tambahkan ini untuk memastikan user ditemukan
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
@@ -63,9 +63,14 @@ const login = async (request, h) => {
             return response;
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('User found:', user); // Tambahkan ini untuk memastikan user ditemukan
+        console.log('Password:', password); // Tambahkan ini untuk memastikan password tidak undefined
+        console.log('Hashed Password:', user.password); // Tambahkan ini untuk memastikan hashed password tidak undefined
 
-        if (!hashedPassword) {
+        const isPassValid = await bcrypt.compare(password, user.password);
+
+        if (!isPassValid) {
+            console.log('Password mismatch for user:', email); // Tambahkan ini untuk memastikan password cocok
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
@@ -73,14 +78,17 @@ const login = async (request, h) => {
             response.code(400);
             return response;
         }
+
+       
+
         const response = h.response({
             status: 'success',
             message: 'Login successful'
-           
         });
         response.code(200);
         return response;
     } catch (err) {
+        console.error('Error in login handler:', err);
         const response = h.response({
             status: 'fail',
             message: err.message,
