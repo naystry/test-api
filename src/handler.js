@@ -63,7 +63,7 @@ const login = async (request, h) => {
             return response;
         }
 
-        const isPassValid = await bcrypt.compare(password, user.password);
+        const isPassValid = await bcrypt.compare(password, 10);
 
         if (!isPassValid) {
             const response = h.response({
