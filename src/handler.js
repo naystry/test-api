@@ -82,12 +82,12 @@ const login = async (request, h) => {
             return response;
         }
 
-        const token = jwt.sign({ userId: user.user_id }, 'secret_key', { expiresIn: '1h' });
+       
 
         const response = h.response({
             status: 'success',
-            message: 'Login successful',
-            data: { token },
+            message: 'Login successful'
+           
         });
         response.code(200);
         return response;
