@@ -73,14 +73,11 @@ const login = async (request, h) => {
             console.log('Password mismatch for user:', email); // Tambahkan ini untuk memastikan password cocok
             const response = h.response({
                 status: 'fail',
-                message: 'Account invalid',
+                message: 'Invalid password ',
             });
             response.code(400);
             return response;
         }
-
-       
-
         const response = h.response({
             status: 'success',
             message: 'Login successful'
@@ -97,11 +94,6 @@ const login = async (request, h) => {
         return response;
     }
 };
-
-
-
-
-
 
 
 const deleteUser = async (request, h) => {
@@ -149,31 +141,43 @@ const editUser = async (request, h) => {
     const { newUsername, newGender, newPassword, newEmail } = request.payload;
 
     try {
+        // Cek apakah user dengan username tersebut ada di database
         const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+        
         if (rows.length === 0) {
+            console.log('User not found:', username); // Log jika user tidak ditemukan
             return h.response({ success: false, message: 'User not found!' }).code(404);
         }
 
+        // Menyiapkan objek update
         const updates = {};
         if (newUsername) updates.username = newUsername;
         if (newGender) updates.gender = newGender;
         if (newPassword) updates.password = await bcrypt.hash(newPassword, 10);
         if (newEmail) updates.email = newEmail;
 
+        // Mengambil kunci dan nilai update
         const updateKeys = Object.keys(updates);
         const updateValues = Object.values(updates);
 
         if (updateKeys.length === 0) {
+            console.log('No updates provided for user:', username); // Log jika tidak ada update yang diberikan
             return h.response({ success: false, message: 'No updates provided!' }).code(400);
         }
 
+        // Menyusun query update
         const query = `UPDATE users SET ${updateKeys.map(key => `${key} = ?`).join(', ')} WHERE username = ?`;
         const queryParams = [...updateValues, username];
         
+        console.log('Executing update query for user:', username, query, queryParams); // Log query dan parameter
+
+        // Melakukan query update
         await pool.query(query, queryParams);
 
+        console.log('User updated successfully:', username); // Log jika update berhasil
         return h.response({ success: true, message: 'User updated successfully!' }).code(200);
     } catch (error) {
+        console.error('Error updating user:', username, error); // Log error jika terjadi kesalahan
         return h.response({ success: false, message: 'Update failed!', error: error.message }).code(500);
     }
 };
