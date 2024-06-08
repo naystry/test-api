@@ -46,78 +46,59 @@ const createUnixSocketPool = async config => {
 
 
 const login = async (request, h) => {
-    const { email, password } = request.payload;
+    const { email, pass } = request.payload;
+
     try {
-        console.log(`Attempting to log in with email: ${email}`); // Log email untuk debug
+        const query = "SELECT * FROM users WHERE email = ?";
 
-        // Lakukan query untuk mengambil data pengguna berdasarkan email
-        const query = 'SELECT * FROM users WHERE email = ?';
-        const [rows] = await pool.query(query, [email]);
-
-        console.log(`Query result: ${JSON.stringify(rows)}`); // Log hasil query untuk debug
-
-        // Periksa apakah hasil query ada dan memiliki panjang lebih dari 0
-        if (!rows || rows.length === 0) {
+        const user = await new Promise((resolve, reject) => {
+            connection.query(query, [email], (err, rows, field) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows[0]);
+                }
+            });
+        });
+        
+        if (!user){
             const response = h.response({
                 status: 'fail',
-                message: 'Email atau password salah'
+                message: 'Account invalid',
             });
-            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
+            response.code(400);
             return response;
         }
-
-        const user = rows[0];
-
-        console.log(`User found: ${JSON.stringify(user)}`); // Log user yang ditemukan untuk debug
-
-        // Periksa apakah user terdefinisi dan memiliki properti password
-        if (!user || !user.password) {
+        
+        const isPassValid = await bcrypt.compare(pass, user.user_pass);
+        
+        if (!isPassValid){
             const response = h.response({
                 status: 'fail',
-                message: 'Email atau password salah'
+                message: 'Account invalid',
             });
-            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
+            response.code(400);
             return response;
         }
-
-        // Verifikasi password yang di-hash
-        const isValid = await bcrypt.compare(password, user.password);
-
-        console.log(`Password is valid: ${isValid}`); // Log hasil verifikasi password
-
-        if (!isValid) {
-            const response = h.response({
-                status: 'fail',
-                message: 'Email atau password salah'
-            });
-            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
-            return response;
-        }
-
-        // Jika login berhasil, buat respons sukses
+        
+        const token = jwt.sign({ userId : user.user_id }, 'secret_key');
+    
         const response = h.response({
             status: 'success',
-            message: 'Login berhasil',
-            data: {
-                username: user.username,
-                email: user.email
-            }
+            message: 'login successful',
+            data: { token },
         });
-        response.code(200); // Gunakan kode status 200 untuk sukses
+        response.code(200);
         return response;
-
-    } catch (error) {
-        console.error('Error during login:', error); // Log detail kesalahan ke konsol
-
+    } catch (err) {
         const response = h.response({
-            status: 'error',
-            message: 'Gagal melakukan login',
-            error: error.message // Tambahkan pesan kesalahan untuk informasi lebih lanjut
+            status: 'fail',
+            message: err.message,
         });
-        response.code(500); // Gunakan kode status 500 untuk kesalahan server
+        response.code(500);
         return response;
     }
-};
+}
 
 
 
