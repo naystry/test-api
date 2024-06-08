@@ -96,7 +96,7 @@ const login = async (request, h) => {
 };
 
 
-const deleteUser = async (request, h) => {
+const deleteUser = async (request, h) => { //belum berhasil
     const { username } = request.params; // Mengambil parameter userId dari URL
 
     try {
@@ -181,7 +181,6 @@ const editUser = async (request, h) => {
     }
 };
 
-
 const getUser = async (request, h) => {
     const { username } = request.params; // Ambil nilai username dari parameter URL
 
@@ -191,7 +190,7 @@ const getUser = async (request, h) => {
         const [user] = await pool.query(query, [username]);
 
         // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!user || !user.length) {
+        if (!user || user.length === 0) {
             console.log('User not found:', username); // Log jika user tidak ditemukan
             return h.response({
                 status: 'fail',
