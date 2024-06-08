@@ -63,9 +63,9 @@ const login = async (request, h) => {
             return response;
         }
 
-        const isPassValid = await bcrypt.compare(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!isPassValid) {
+        if (!hashedPassword) {
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
