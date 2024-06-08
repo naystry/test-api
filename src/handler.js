@@ -135,7 +135,7 @@ const deleteUser = async (request, h) => {
 
         const response = h.response({
             status: 'fail',
-            message: 'Failed to delete user',
+            message: 'gagallllllllll',
             error: err.message,
         });
         response.code(500);
