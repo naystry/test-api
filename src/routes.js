@@ -26,7 +26,7 @@ const routes = [
     },
     {
         method: 'DELETE',
-        path: '/users/{username}',
+        path: '/user/{username}',
         handler: deleteUser
     },
     {
@@ -36,7 +36,7 @@ const routes = [
     },
     {
         method: 'GET', // Method HTTP yang digunakan (GET untuk membaca data)
-        path: '/getUsers/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
+        path: '/getUser/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
         handler: getUser // Handler untuk menangani permintaan mendapatkan data pengguna
     }
 ];

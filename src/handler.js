@@ -191,14 +191,12 @@ const getUser = async (request, h) => {
         const [user] = await pool.query(query, [username]);
 
         // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!user || user.length === 0) {
-            console.log('Username tidak ditemukan:', username); // Log jika username tidak ditemukan
-            const response = h.response({
+        if (!user || !user.length) {
+            console.log('User not found:', username); // Log jika user tidak ditemukan
+            return h.response({
                 status: 'fail',
                 message: 'Username tidak ditemukan'
-            });
-            response.code(404); // Gunakan kode status 404 untuk username tidak ditemukan
-            return response;
+            }).code(404); // Gunakan kode status 404 untuk username tidak ditemukan
         }
 
         // Jika username ditemukan, kembalikan data pengguna dalam respons
@@ -210,26 +208,21 @@ const getUser = async (request, h) => {
         };
 
         console.log('Data pengguna ditemukan:', userData); // Log data pengguna yang ditemukan
-        const response = h.response({
+        return h.response({
             status: 'success',
             message: 'Data pengguna ditemukan',
             user: userData
-        });
-        response.code(200); // Gunakan kode status 200 untuk permintaan berhasil
-        return response;
+        }).code(200); // Gunakan kode status 200 untuk permintaan berhasil
     } catch (error) {
         // Tangani kesalahan server
         console.error('Gagal mengambil data pengguna:', error); // Log jika terjadi kesalahan
-        const response = h.response({
+        return h.response({
             status: 'fail',
             message: 'Gagal mengambil data pengguna',
             error: error.message
-        });
-        response.code(500); // Gunakan kode status 500 untuk kesalahan server
-        return response;
+        }).code(500); // Gunakan kode status 500 untuk kesalahan server
     }
 };
-
 
 
 module.exports = { register, login, deleteUser, editUser, getUser };
