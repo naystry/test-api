@@ -46,78 +46,87 @@ const createUnixSocketPool = async config => {
 
 
 const login = async (request, h) => {
-    const { username, password } = request.payload;
+    const { email, password } = request.payload;
     try {
-        // Lakukan query untuk mendapatkan data pengguna berdasarkan username
-        const [userRows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+        // Lakukan query untuk mengambil data pengguna berdasarkan email
+        const query = 'SELECT * FROM users WHERE email = ?';
+        const [rows] = await pool.query(query, [email]);
 
-        // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!userRows || userRows.length === 0) {
-            return h.response({
+        if (rows.length === 0) {
+            const response = h.response({
                 status: 'fail',
-                message: 'Username not found'
-            }).code(404);
+                message: 'Email atau password salah'
+            });
+            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
+            return response;
         }
 
-        const user = userRows[0];
+        const user = rows[0];
 
-        // Periksa apakah objek user tidak bernilai undefined dan data pengguna lengkap
-        if (!user || !user.password) {
-            return h.response({
+        // Verifikasi password yang di-hash
+        const isValid = await bcrypt.compare(password, user.password);
+
+        if (!isValid) {
+            const response = h.response({
                 status: 'fail',
-                message: 'User data is incomplete'
-            }).code(500);
+                message: 'Email atau password salah'
+            });
+            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
+            return response;
         }
 
-        // Periksa apakah password yang diberikan cocok dengan password yang di-hash
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) {
-            return h.response({
-                status: 'fail',
-                message: 'Incorrect password'
-            }).code(401);
-        }
-
-        // Jika username dan password cocok, kembalikan respons sukses
-        return h.response({
+        // Jika login berhasil, buat respons sukses
+        const response = h.response({
             status: 'success',
-            message: 'Login successful',
-        }).code(200);
+            message: 'Login berhasil',
+            data: {
+                username: user.username,
+                email: user.email
+            }
+        });
+        response.code(200); // Gunakan kode status 200 untuk sukses
+        return response;
+
     } catch (error) {
-        // Tangani kesalahan server
-        return h.response({
-            status: 'fail',
-            message: 'Failed to login',
-            error: error.message
-        }).code(500);
+        const response = h.response({
+            status: 'error',
+            message: 'Gagal melakukan login',
+            error: error.message // Tambahkan pesan kesalahan untuk informasi lebih lanjut
+        });
+        response.code(500); // Gunakan kode status 500 untuk kesalahan server
+        return response;
     }
 };
 
 
 
 const deleteUser = async (request, h) => {
-    const { username, password } = request.payload;
-    const connection = request.server.app.connection;
+    const { username } = request.params; // Ambil nilai username dari parameter URL
     try {
-        const [rows] = await connection.execute(
-            'SELECT * FROM users WHERE username = ?',
-            [username]
-        );
-        if (rows.length === 0) {
-            return h.response({ success: false, message: 'User not found!' }).code(404);
+        // Lakukan query untuk menghapus data pengguna berdasarkan username
+        const query = 'DELETE FROM users WHERE username = ?';
+        const [result] = await pool.query(query, [username]);
+
+        // Periksa apakah pengguna dengan username yang diberikan berhasil dihapus
+        if (result.affectedRows === 0) {
+            return h.response({
+                status: 'fail',
+                message: 'User not found'
+            }).code(404);
         }
-        const user = rows[0];
-        const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) {
-            return h.response({ success: false, message: 'Invalid password!' }).code(401);
-        }
-        await connection.execute(
-            'DELETE FROM users WHERE username = ?',
-            [username]
-        );
-        return h.response({ success: true, message: 'User deleted successfully!' }).code(200);
-    } catch (err) {
-        return h.response({ success: false, message: 'Deletion failed!' }).code(500);
+
+        // Jika pengguna berhasil dihapus, kembalikan respons sukses
+        return h.response({
+            status: 'success',
+            message: 'User deleted successfully'
+        }).code(200);
+    } catch (error) {
+        // Tangani kesalahan server
+        return h.response({
+            status: 'fail',
+            message: 'Failed to delete user',
+            error: error.message
+        }).code(500);
     }
 };
 

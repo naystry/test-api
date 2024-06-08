@@ -26,15 +26,7 @@ const routes = [
     },
     {
         method: 'DELETE',
-        path: '/delete',
-        options: {
-            validate: {
-                payload: Joi.object({
-                    username: Joi.string().required(),
-                    password: Joi.string().required()
-                })
-            }
-        },
+        path: 'deleteUser/{username}',
         handler: deleteUser
     },
     {
@@ -43,7 +35,7 @@ const routes = [
         handler: editUser
     },
     {
-        path: '/users/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
+        path: '/getUsers/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
         method: 'GET', // Method HTTP yang digunakan (GET untuk membaca data)
         handler: getUser // Handler untuk menangani permintaan mendapatkan data pengguna
     }
