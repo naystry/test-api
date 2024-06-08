@@ -50,7 +50,7 @@ const login = async (request, h) => {
     const { email, pass } = request.payload;
 
     try {
-        const query = "SELECT * FROM users WHERE email = ?";
+        const query = `SELECT * FROM users WHERE email = ${email}`;
 
         const user = await new Promise((resolve, reject) => {
             connection.query(query, [email], (err, rows) => {
