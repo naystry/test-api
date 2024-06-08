@@ -108,11 +108,11 @@ const login = async (request, h) => {
 
 
 const deleteUser = async (request, h) => {
-    const { userId } = request.params; // Mengambil parameter userId dari URL
+    const { username } = request.params; // Mengambil parameter userId dari URL
 
     try {
         // Lakukan query untuk menghapus pengguna berdasarkan ID
-        const query = 'DELETE FROM users WHERE id = ?';
+        const query = 'DELETE FROM users WHERE username = ?';
         const queryResult = await pool.query(query, [userId]);
 
         // Periksa apakah pengguna berhasil dihapus
@@ -124,7 +124,7 @@ const deleteUser = async (request, h) => {
             });
             response.code(200); // Gunakan kode status 200 untuk berhasil
             return response;
-        } else {
+        } else { 
             // Jika tidak ada pengguna yang dihapus (ID tidak ditemukan), kembalikan respons dengan kode status 404
             const response = h.response({
                 status: 'fail',
