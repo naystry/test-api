@@ -3,8 +3,8 @@ const { register, login, deleteUser, editUser, getUser } = require('./handler.js
 
 const routes = [
     {
-        path: '/test',
         method: 'GET',
+        path: '/test',
         handler: (request, h) => {
             const response = h.response({
                 status: 'success',
