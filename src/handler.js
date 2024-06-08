@@ -52,7 +52,8 @@ const login = async (request, h) => {
         const query = 'SELECT * FROM users WHERE email = ?';
         const [rows] = await pool.query(query, [email]);
 
-        if (rows.length === 0) {
+        // Periksa apakah hasil query ada dan memiliki panjang lebih dari 0
+        if (!rows || rows.length === 0) {
             const response = h.response({
                 status: 'fail',
                 message: 'Email atau password salah'
@@ -62,6 +63,16 @@ const login = async (request, h) => {
         }
 
         const user = rows[0];
+
+        // Periksa apakah user terdefinisi dan memiliki properti password
+        if (!user || !user.password) {
+            const response = h.response({
+                status: 'fail',
+                message: 'Email atau password salah'
+            });
+            response.code(401); // Gunakan kode status 401 untuk autentikasi gagal
+            return response;
+        }
 
         // Verifikasi password yang di-hash
         const isValid = await bcrypt.compare(password, user.password);
@@ -88,6 +99,8 @@ const login = async (request, h) => {
         return response;
 
     } catch (error) {
+        console.error('Error during login:', error); // Log detail kesalahan ke konsol
+
         const response = h.response({
             status: 'error',
             message: 'Gagal melakukan login',
@@ -97,6 +110,7 @@ const login = async (request, h) => {
         return response;
     }
 };
+
 
 
 
