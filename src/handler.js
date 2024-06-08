@@ -53,7 +53,7 @@ const login = async (request, h) => {
         const query = `SELECT * FROM users WHERE email = ${email}`;
 
         const user = await new Promise((resolve, reject) => {
-            connection.query(query, [email], (err, rows) => {
+            pool.query(query, [email], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
