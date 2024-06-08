@@ -1,5 +1,5 @@
 const { register, login, deleteUser, editUser, getUser } = require('./handler.js');
-const Joi = require('joi');
+//const Joi = require('joi');
 
 const routes = [
     {

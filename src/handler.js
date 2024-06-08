@@ -45,6 +45,7 @@ const createUnixSocketPool = async config => {
 };
 
 
+
 const login = async (request, h) => {
     const { email, pass } = request.payload;
 
@@ -52,7 +53,7 @@ const login = async (request, h) => {
         const query = "SELECT * FROM users WHERE email = ?";
 
         const user = await new Promise((resolve, reject) => {
-            connection.query(query, [email], (err, rows, field) => {
+            connection.query(query, [email], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -60,8 +61,8 @@ const login = async (request, h) => {
                 }
             });
         });
-        
-        if (!user){
+
+        if (!user) {
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
@@ -69,10 +70,10 @@ const login = async (request, h) => {
             response.code(400);
             return response;
         }
-        
+
         const isPassValid = await bcrypt.compare(pass, user.user_pass);
-        
-        if (!isPassValid){
+
+        if (!isPassValid) {
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
@@ -80,12 +81,12 @@ const login = async (request, h) => {
             response.code(400);
             return response;
         }
-        
-        const token = jwt.sign({ userId : user.user_id }, 'secret_key');
-    
+
+        const token = jwt.sign({ userId: user.user_id }, 'secret_key', { expiresIn: '1h' });
+
         const response = h.response({
             status: 'success',
-            message: 'login successful',
+            message: 'Login successful',
             data: { token },
         });
         response.code(200);
@@ -98,7 +99,9 @@ const login = async (request, h) => {
         response.code(500);
         return response;
     }
-}
+};
+
+
 
 
 
