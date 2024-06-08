@@ -48,9 +48,13 @@ const createUnixSocketPool = async config => {
 const login = async (request, h) => {
     const { email, password } = request.payload;
     try {
+        console.log(`Attempting to log in with email: ${email}`); // Log email untuk debug
+
         // Lakukan query untuk mengambil data pengguna berdasarkan email
         const query = 'SELECT * FROM users WHERE email = ?';
         const [rows] = await pool.query(query, [email]);
+
+        console.log(`Query result: ${JSON.stringify(rows)}`); // Log hasil query untuk debug
 
         // Periksa apakah hasil query ada dan memiliki panjang lebih dari 0
         if (!rows || rows.length === 0) {
@@ -64,6 +68,8 @@ const login = async (request, h) => {
 
         const user = rows[0];
 
+        console.log(`User found: ${JSON.stringify(user)}`); // Log user yang ditemukan untuk debug
+
         // Periksa apakah user terdefinisi dan memiliki properti password
         if (!user || !user.password) {
             const response = h.response({
@@ -76,6 +82,8 @@ const login = async (request, h) => {
 
         // Verifikasi password yang di-hash
         const isValid = await bcrypt.compare(password, user.password);
+
+        console.log(`Password is valid: ${isValid}`); // Log hasil verifikasi password
 
         if (!isValid) {
             const response = h.response({
@@ -110,6 +118,7 @@ const login = async (request, h) => {
         return response;
     }
 };
+
 
 
 
