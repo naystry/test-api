@@ -108,40 +108,44 @@ const login = async (request, h) => {
 
 
 const deleteUser = async (request, h) => {
-    const { username } = request.params;
+    const { userId } = request.params; // Mengambil parameter userId dari URL
 
     try {
-        const query = 'DELETE FROM users WHERE username = ?';
+        // Lakukan query untuk menghapus pengguna berdasarkan ID
+        const query = 'DELETE FROM users WHERE id = ?';
+        const queryResult = await pool.query(query, [userId]);
 
-        const [result] = await pool.query(query, [username]);
-
-        if (result.affectedRows === 0) {
+        // Periksa apakah pengguna berhasil dihapus
+        if (queryResult.affectedRows > 0) {
+            // Jika berhasil, buat respons berhasil
+            const response = h.response({
+                status: 'success',
+                message: 'User berhasil dihapus'
+            });
+            response.code(200); // Gunakan kode status 200 untuk berhasil
+            return response;
+        } else {
+            // Jika tidak ada pengguna yang dihapus (ID tidak ditemukan), kembalikan respons dengan kode status 404
             const response = h.response({
                 status: 'fail',
-                message: 'User not found',
+                message: 'User tidak ditemukan'
             });
-            response.code(404);
+            response.code(404); // Gunakan kode status 404 untuk tidak ditemukan
             return response;
         }
-
-        const response = h.response({
-            status: 'success',
-            message: 'User deleted successfully',
-        });
-        response.code(200);
-        return response;
-    } catch (err) {
-        console.error('Error during deletion:', err); // Log detail kesalahan ke konsol
-
+    } catch (error) {
+        // Tangani kesalahan jika terjadi
         const response = h.response({
             status: 'fail',
-            message: 'gagallllllllll',
-            error: err.message,
+            message: 'Gagal menghapus user',
+            error: error.message // Tambahkan pesan kesalahan untuk informasi lebih lanjut
         });
-        response.code(500);
+        response.code(500); // Gunakan kode status 500 untuk kesalahan server
         return response;
     }
 };
+
+
 
 const editUser = async (request, h) => {
     const { username } = request.params;
