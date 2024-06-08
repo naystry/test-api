@@ -51,16 +51,8 @@ const login = async (request, h) => {
 
     try {
         const query = 'SELECT * FROM users WHERE email = ?';
-
-        const user = await new Promise((resolve, reject) => {
-            pool.query(query, [email], (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows[0]);
-                }
-            });
-        });
+           const [user] = await pool.query(query, [email]);
+        
 
         if (!user) {
             const response = h.response({
