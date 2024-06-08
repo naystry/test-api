@@ -15,13 +15,13 @@ const routes = [
         }
     },
     {
-        path: '/register', // Path untuk register
         method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
+        path: '/register', // Path untuk register
         handler: register 
     },
     {
-        path: '/login', // Path untuk login
         method: 'POST', // Method HTTP yang digunakan (POST untuk membuat data baru)
+        path: '/login', // Path untuk login
         handler: login // Handler untuk menangani permintaan login
     },
     {
@@ -35,8 +35,8 @@ const routes = [
         handler: editUser
     },
     {
-        path: '/getUsers/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
         method: 'GET', // Method HTTP yang digunakan (GET untuk membaca data)
+        path: '/getUsers/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
         handler: getUser // Handler untuk menangani permintaan mendapatkan data pengguna
     }
 ];

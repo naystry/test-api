@@ -135,7 +135,6 @@ const deleteUser = async (request, h) => {
 };
 
 
-
 const editUser = async (request, h) => {
     const { username } = request.params;
     const { newUsername, newGender, newPassword, newEmail } = request.payload;
@@ -178,21 +177,22 @@ const editUser = async (request, h) => {
         return h.response({ success: true, message: 'User updated successfully!' }).code(200);
     } catch (error) {
         console.error('Error updating user:', username, error); // Log error jika terjadi kesalahan
-        return h.response({ success: false, message: 'Update failed!', error: error.message }).code(500);
+        return h.response({ success: false, message: 'Update failed! invailid username', error: error.message }).code(500);
     }
 };
 
 
-
 const getUser = async (request, h) => {
     const { username } = request.params; // Ambil nilai username dari parameter URL
+
     try {
         // Lakukan query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
         const [user] = await pool.query(query, [username]);
 
         // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!user || !user.length) {
+        if (!user || user.length === 0) {
+            console.log('Username tidak ditemukan:', username); // Log jika username tidak ditemukan
             const response = h.response({
                 status: 'fail',
                 message: 'Username tidak ditemukan'
@@ -209,6 +209,7 @@ const getUser = async (request, h) => {
             // Jika kamu ingin menambahkan kolom-kolom lain, tambahkan di sini
         };
 
+        console.log('Data pengguna ditemukan:', userData); // Log data pengguna yang ditemukan
         const response = h.response({
             status: 'success',
             message: 'Data pengguna ditemukan',
@@ -218,6 +219,7 @@ const getUser = async (request, h) => {
         return response;
     } catch (error) {
         // Tangani kesalahan server
+        console.error('Gagal mengambil data pengguna:', error); // Log jika terjadi kesalahan
         const response = h.response({
             status: 'fail',
             message: 'Gagal mengambil data pengguna',
@@ -227,6 +229,7 @@ const getUser = async (request, h) => {
         return response;
     }
 };
+
 
 
 module.exports = { register, login, deleteUser, editUser, getUser };
