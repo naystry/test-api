@@ -47,11 +47,11 @@ const createUnixSocketPool = async config => {
 
 
 const login = async (request, h) => {
-    const { email, pass } = request.payload;
+    const { username, password } = request.payload;
 
     try {
         const query = 'SELECT * FROM users WHERE email = ?';
-           const [user] = await pool.query(query, [email]);
+           const [user] = await pool.query(query, [username]);
         
 
         if (!user) {
@@ -63,7 +63,7 @@ const login = async (request, h) => {
             return response;
         }
 
-        const isPassValid = await bcrypt.compare(pass, user.user_pass);
+        const isPassValid = await bcrypt.compare(password, user.password);
 
         if (!isPassValid) {
             const response = h.response({
@@ -73,9 +73,6 @@ const login = async (request, h) => {
             response.code(400);
             return response;
         }
-
-       
-
         const response = h.response({
             status: 'success',
             message: 'Login successful'
