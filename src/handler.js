@@ -108,32 +108,38 @@ const login = async (request, h) => {
 
 
 const deleteUser = async (request, h) => {
-    const { username } = request.params; // Ambil nilai username dari parameter URL
+    const { username } = request.params;
+
     try {
-        // Lakukan query untuk menghapus data pengguna berdasarkan username
         const query = 'DELETE FROM users WHERE username = ?';
+
         const [result] = await pool.query(query, [username]);
 
-        // Periksa apakah pengguna dengan username yang diberikan berhasil dihapus
         if (result.affectedRows === 0) {
-            return h.response({
+            const response = h.response({
                 status: 'fail',
-                message: 'User not found'
-            }).code(404);
+                message: 'User not found',
+            });
+            response.code(404);
+            return response;
         }
 
-        // Jika pengguna berhasil dihapus, kembalikan respons sukses
-        return h.response({
+        const response = h.response({
             status: 'success',
-            message: 'User deleted successfully'
-        }).code(200);
-    } catch (error) {
-        // Tangani kesalahan server
-        return h.response({
+            message: 'User deleted successfully',
+        });
+        response.code(200);
+        return response;
+    } catch (err) {
+        console.error('Error during deletion:', err); // Log detail kesalahan ke konsol
+
+        const response = h.response({
             status: 'fail',
             message: 'Failed to delete user',
-            error: error.message
-        }).code(500);
+            error: err.message,
+        });
+        response.code(500);
+        return response;
     }
 };
 

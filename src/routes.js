@@ -26,7 +26,7 @@ const routes = [
     },
     {
         method: 'DELETE',
-        path: '/deleteUser/{username}',
+        path: '/users/{username}',
         handler: deleteUser
     },
     {
