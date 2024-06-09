@@ -35,9 +35,9 @@ const routes = [
         handler: editUser
     },
     {
-        method: 'GET', // Method HTTP yang digunakan (GET untuk membaca data)
-        path: '/getUser/{username}', // Path untuk mendapatkan data pengguna berdasarkan username
-        handler: getUser // Handler untuk menangani permintaan mendapatkan data pengguna
+        method: 'GET',
+        path: '/users/{username}',
+        handler: getUser,
     }
 ];
 

@@ -188,10 +188,11 @@ const getUser = async (request, h) => {
     const { username } = request.params;
 
     try {
-        // Lakukan query untuk mendapatkan data pengguna berdasarkan username
-        const query = 'SELECT * FROM users WHERE username = ?';
+        // Query untuk mendapatkan data pengguna berdasarkan username
+        const query = 'SELECT username, gender, email FROM users WHERE username = ?';
         const [rows] = await pool.query(query, [username]);
 
+        console.log('Query executed:', query, 'with params:', username); // Log query yang dijalankan
         console.log('Query result:', rows); // Log hasil query
 
         if (rows.length === 0) {
