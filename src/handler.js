@@ -211,7 +211,7 @@ const getUser = async (request, h) => {
                 const response = h.response({
                     status: 'success',
                     message: 'get successful',
-                    data: { data }
+                    data: data
                 });
                 response.code(200);
                 return response;
