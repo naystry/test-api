@@ -48,7 +48,6 @@ const createUnixSocketPool = async config => {
 };
 
 
-
 const login = async (request, h) => {
     const { email, password } = request.payload;
 
@@ -57,7 +56,7 @@ const login = async (request, h) => {
         const [user] = await pool.query(query, [email]);
 
         if (!user) {
-            console.log('User not found for email:', email); // Tambahkan ini untuk memastikan user ditemukan
+            //console.log('User not found for email:', email); // Tambahkan ini untuk memastikan user ditemukan
             const response = h.response({
                 status: 'fail',
                 message: 'Account invalid',
@@ -76,7 +75,7 @@ const login = async (request, h) => {
             console.log('Password mismatch for user:', email); // Tambahkan ini untuk memastikan password cocok
             const response = h.response({
                 status: 'fail',
-                message: 'Invalid password ',
+                message: 'Invalid password',
             });
             response.code(400);
             return response;
@@ -147,8 +146,8 @@ const editUser = async (request, h) => {
         const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
         
         if (rows.length === 0) {
-            console.log('User not found:', username); // Log jika user tidak ditemukan
-            return h.response({ success: false, message: 'User not found!' }).code(404);
+            //console.log('User not found:', username); // Log jika user tidak ditemukan
+            return h.response({ success: 'fail', message: 'User not found!' }).code(404);
         }
 
         // Menyiapkan objek update
@@ -163,24 +162,24 @@ const editUser = async (request, h) => {
         const updateValues = Object.values(updates);
 
         if (updateKeys.length === 0) {
-            console.log('No updates provided for user:', username); // Log jika tidak ada update yang diberikan
-            return h.response({ success: false, message: 'No updates provided!' }).code(400);
+            //console.log('No updates provided for user:', username); // Log jika tidak ada update yang diberikan
+            return h.response({ success: 'fail', message: 'No updates provided!' }).code(400);
         }
 
         // Menyusun query update
         const query = `UPDATE users SET ${updateKeys.map(key => `${key} = ?`).join(', ')} WHERE username = ?`;
         const queryParams = [...updateValues, username];
         
-        console.log('Executing update query for user:', username, query, queryParams); // Log query dan parameter
+        //console.log('Executing update query for user:', username, query, queryParams); // Log query dan parameter
 
         // Melakukan query update
         await pool.query(query, queryParams);
 
         console.log('User updated successfully:', username); // Log jika update berhasil
-        return h.response({ success: true, message: 'User updated successfully!' }).code(200);
+        return h.response({ success: 'success', message: 'User updated successfully!' }).code(200);
     } catch (error) {
         console.error('Error updating user:', username, error); // Log error jika terjadi kesalahan
-        return h.response({ success: false, message: 'Update failed! invailid username', error: error.message }).code(500);
+        return h.response({ success: 'fail', message: 'Invalid username', error: error.message }).code(500);
     }
 };
 
@@ -189,7 +188,7 @@ const getUser = async (request, h) => {
     try {
         // Query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
-        const data = await new Promise((resolve, reject) => {
+        const dataUser = await new Promise((resolve, reject) => {
             pool.query(query, [username], (err, rows) => {
                 if (err) {
                     reject(err);
@@ -199,8 +198,7 @@ const getUser = async (request, h) => {
             });
         });
 
-        // Pastikan rows tidak undefined sebelum mengaksesnya
-        if (!data) {
+        if (!dataUser) {
             const response = h.response({
                 status: 'fail',
                 message: 'user is not found!',
@@ -211,19 +209,18 @@ const getUser = async (request, h) => {
                 const response = h.response({
                     status: 'success',
                     message: 'get successful',
-                    data: data
+                    data: dataUser
                 });
                 response.code(200);
                 return response;
             
-        
-    } catch (error) {
-        console.error('Error fetching user:', username, error); // Log error jika terjadi kesalahan
-        return h.response({
+    } catch (err) {
+        const response = h.response({
             status: 'fail',
-            message: 'Failed to fetch user',
-            error: error.message,
-        }).code(500);
+            message: err.message,
+        });
+        response.code(500);
+        return response;
     }
 };
 
@@ -264,4 +261,4 @@ const getUser = async (request, h) => {
 
 
 
-module.exports = { register, login, deleteUser, editUser, getUser};
+module.exports = { register, login, deleteUser, editUser, getUser}; //deleteUser belum di eksekusi
