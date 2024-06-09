@@ -46,7 +46,6 @@ const createUnixSocketPool = async config => {
     }
 };
 
-
 const login = async (request, h) => {
     const { email, password } = request.payload;
 
@@ -81,7 +80,7 @@ const login = async (request, h) => {
         }
         const response = h.response({
             status: 'success',
-            message: 'Login successful'
+            message: 'Login successful!'
         });
         response.code(200);
         return response;
@@ -110,7 +109,7 @@ const deleteUser = async (request, h) => { //belum berhasil
             // Jika berhasil, buat respons berhasil
             const response = h.response({
                 status: 'success',
-                message: 'User berhasil dihapus'
+                message: 'User deleted succsessful!'
             });
             response.code(200); // Gunakan kode status 200 untuk berhasil
             return response;
@@ -118,7 +117,7 @@ const deleteUser = async (request, h) => { //belum berhasil
             // Jika tidak ada pengguna yang dihapus (ID tidak ditemukan), kembalikan respons dengan kode status 404
             const response = h.response({
                 status: 'fail',
-                message: 'User tidak ditemukan'
+                message: 'User not found'
             });
             response.code(404); // Gunakan kode status 404 untuk tidak ditemukan
             return response;
@@ -146,7 +145,7 @@ const editUser = async (request, h) => {
         
         if (rows.length === 0) {
             //console.log('User not found:', username); // Log jika user tidak ditemukan
-            return h.response({ success: 'fail', message: 'User not found!' }).code(404);
+            return h.response({ status: 'fail', message: 'User not found!' }).code(404);
         }
 
         // Menyiapkan objek update
@@ -162,7 +161,7 @@ const editUser = async (request, h) => {
 
         if (updateKeys.length === 0) {
             //console.log('No updates provided for user:', username); // Log jika tidak ada update yang diberikan
-            return h.response({ success: 'fail', message: 'No updates provided!' }).code(400);
+            return h.response({ status: 'fail', message: 'No updates provided!' }).code(400);
         }
 
         // Menyusun query update
@@ -175,10 +174,10 @@ const editUser = async (request, h) => {
         await pool.query(query, queryParams);
 
         console.log('User updated successfully:', username); // Log jika update berhasil
-        return h.response({ success: 'success', message: 'User updated successfully!' }).code(200);
+        return h.response({ status: 'success', message: 'User updated successfully!' }).code(200);
     } catch (error) {
         console.error('Error updating user:', username, error); // Log error jika terjadi kesalahan
-        return h.response({ success: 'fail', message: 'Invalid username', error: error.message }).code(500);
+        return h.response({ status: 'fail', message: 'Invalid username', error: error.message }).code(500);
     }
 };
 
@@ -207,7 +206,7 @@ const getUser = async (request, h) => {
         }
                 const response = h.response({
                     status: 'success',
-                    message: 'get successful',
+                    message: 'get user successful',
                     data: dataUser
                 });
                 response.code(200);
