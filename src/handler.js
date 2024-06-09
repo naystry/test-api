@@ -191,7 +191,7 @@ const getUser = async (request, h) => {
         // Query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
         
-        const rows = await new Promise((resolve, reject) => {
+        const data = await new Promise((resolve, reject) => {
             pool.query(query, [username], (err, rows, field) => {
                 if (err) {
                     reject(err);
@@ -202,10 +202,15 @@ const getUser = async (request, h) => {
         });
 
         // Pastikan rows tidak undefined sebelum mengaksesnya
-        if (!rows) {
-            console.log('No rows returned from query');
+        if (!data) {
+           // console.log('No rows returned from query');
             // Lakukan sesuatu untuk menangani kasus ini, misalnya kembalikan respons 404
-            return h.response({ success: false, message: 'User not found' }).code(404);
+            const response = h.response({
+                status: 'fail',
+                message: 'user is not found!',
+            });
+            response.code(400);
+            return response;
         }
 
         // if (rows.length === 0) {
@@ -215,15 +220,15 @@ const getUser = async (request, h) => {
         //         message: 'User not found',
         //     }).code(404);
         // }
-            else {
-                const user = rows[0];
-                    console.log('User found:', user); // Log user yang ditemukan
-
-                    return h.response({
-                        status: 'success',
-                        data: user,
-                    }).code(200);
-            }
+            
+                const response = h.response({
+                    status: 'success',
+                    message: 'get successful',
+                    data: { data }
+                });
+                response.code(200);
+                return response;
+            
         
     } catch (error) {
         console.error('Error fetching user:', username, error); // Log error jika terjadi kesalahan
