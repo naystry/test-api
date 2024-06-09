@@ -228,38 +228,38 @@ const getUser = async (request, h) => {
 
 
 
-let classificationModel;
-let recommendationModel;
-const skinToneModelURL = 'https://storage.googleapis.com/skintone-ml/model_klasifikasi.json'; // Ganti dengan URL publik
-const recommendationModelURL = 'https://storage.googleapis.com/skintone-ml/model_rekomendasi.json'; // Ganti dengan URL publik
-const loadModels = async () => {
-    classificationModel = await tf.loadLayersModel(skinToneModelURL);
-    recommendationModel = await tf.loadLayersModel(recommendationModelURL);
-};
+// let classificationModel;
+// let recommendationModel;
+// const skinToneModelURL = 'https://storage.googleapis.com/skintone-ml/model_klasifikasi.json'; // Ganti dengan URL publik
+// const recommendationModelURL = 'https://storage.googleapis.com/skintone-ml/model_rekomendasi.json'; // Ganti dengan URL publik
+// const loadModels = async () => {
+//     classificationModel = await tf.loadLayersModel(skinToneModelURL);
+//     recommendationModel = await tf.loadLayersModel(recommendationModelURL);
+// };
 
-loadModels();
+// loadModels();
 
-const classifySkintone = async (request, h) => {
-    const { image } = request.payload;
-    const tensor = tf.node.decodeImage(Buffer.from(image, 'base64'));
-    const prediction = classificationModel.predict(tensor.expandDims(0));
-    const classIndex = prediction.argMax(-1).dataSync()[0];
+// const classifySkintone = async (request, h) => {
+//     const { image } = request.payload;
+//     const tensor = tf.node.decodeImage(Buffer.from(image, 'base64'));
+//     const prediction = classificationModel.predict(tensor.expandDims(0));
+//     const classIndex = prediction.argMax(-1).dataSync()[0];
 
-    //await pool.query('INSERT INTO classifications (image, class_index) VALUES (?, ?)', [image, classIndex]);
+//     //await pool.query('INSERT INTO classifications (image, class_index) VALUES (?, ?)', [image, classIndex]);
 
-    return h.response({ classIndex }).code(200);
-};
+//     return h.response({ classIndex }).code(200);
+// };
 
-const recommendPalette = async (request, h) => {
-    const { classIndex } = request.payload;
-    const inputTensor = tf.tensor([[classIndex]]);
-    const recommendation = recommendationModel.predict(inputTensor);
-    const colors = recommendation.dataSync();
+// const recommendPalette = async (request, h) => {
+//     const { classIndex } = request.payload;
+//     const inputTensor = tf.tensor([[classIndex]]);
+//     const recommendation = recommendationModel.predict(inputTensor);
+//     const colors = recommendation.dataSync();
 
-    //await pool.query('INSERT INTO recommendations (class_index, colors) VALUES (?, ?)', [classIndex, JSON.stringify(colors)]);
+//     //await pool.query('INSERT INTO recommendations (class_index, colors) VALUES (?, ?)', [classIndex, JSON.stringify(colors)]);
 
-    return h.response({ colors }).code(200);
-};
+//     return h.response({ colors }).code(200);
+// };
 
 
 
