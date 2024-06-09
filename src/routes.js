@@ -31,7 +31,7 @@ const routes = [
     },
     {
         method: 'PUT',
-        path: '/editUser/{username}',
+        path: '/updateUser/{username}',
         handler: editUser
     },
     {
