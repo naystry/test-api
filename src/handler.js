@@ -222,8 +222,6 @@ const getUser = async (request, h) => {
     }
 };
 
-
-
 // let classificationModel;
 // let recommendationModel;
 // const skinToneModelURL = 'https://storage.googleapis.com/skintone-ml/model_klasifikasi.json'; // Ganti dengan URL publik
