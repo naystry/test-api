@@ -192,6 +192,8 @@ const getUser = async (request, h) => {
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
         const [rows] = await pool.query(query, [username]);
 
+        console.log('Query result:', rows); // Log hasil query
+
         if (rows.length === 0) {
             console.log('User not found:', username); // Log jika user tidak ditemukan
             const response = h.response({
@@ -220,7 +222,7 @@ const getUser = async (request, h) => {
         });
         response.code(500);
         return response;
-    }
+    }
 };
 
 
