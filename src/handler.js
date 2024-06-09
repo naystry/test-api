@@ -199,21 +199,23 @@ const getUser = async (request, h) => {
             return h.response({ success: false, message: 'User not found' }).code(404);
         }
 
-        if (rows.length === 0) {
-            console.log('User not found:', username); // Log jika user tidak ditemukan
-            return h.response({
-                status: 'fail',
-                message: 'User not found',
-            }).code(404);
-        }
+        // if (rows.length === 0) {
+        //     console.log('User not found:', username); // Log jika user tidak ditemukan
+        //     return h.response({
+        //         status: 'fail',
+        //         message: 'User not found',
+        //     }).code(404);
+        // }
+            else {
+                const user = rows[0];
+                    console.log('User found:', user); // Log user yang ditemukan
 
-        const user = rows[0];
-        console.log('User found:', user); // Log user yang ditemukan
-
-        return h.response({
-            status: 'success',
-            data: user,
-        }).code(200);
+                    return h.response({
+                        status: 'success',
+                        data: user,
+                    }).code(200);
+            }
+        
     } catch (error) {
         console.error('Error fetching user:', username, error); // Log error jika terjadi kesalahan
         return h.response({
