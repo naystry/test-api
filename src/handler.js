@@ -32,15 +32,14 @@ const createUnixSocketPool = async config => {
         // Buat respons jika registrasi berhasil
         const response = h.response({
             status: 'success',
-            message: 'User berhasil terdaftar'
+            message: 'User created successfully'
         });
         response.code(201); // Gunakan kode status 201 untuk registrasi berhasil
         return response;
     } catch (error) {
         const response = h.response({
             status: 'fail',
-            message: 'Gagal melakukan registrasi',
-            error: error.message // Tambahkan pesan kesalahan untuk informasi lebih lanjut
+            message: err.message
         });
         response.code(500); // Gunakan kode status 500 untuk kesalahan server
         return response;
