@@ -192,37 +192,35 @@ const getUser = async (request, h) => {
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
         const [rows] = await pool.query(query, [username]);
 
-        console.log('Query executed:', query, 'with params:', username); // Log query yang dijalankan
-        console.log('Query result:', rows); // Log hasil query
+        // Pastikan rows tidak undefined sebelum mengaksesnya
+        if (!rows) {
+            console.log('No rows returned from query');
+            // Lakukan sesuatu untuk menangani kasus ini, misalnya kembalikan respons 404
+            return h.response({ success: false, message: 'User not found' }).code(404);
+        }
 
         if (rows.length === 0) {
             console.log('User not found:', username); // Log jika user tidak ditemukan
-            const response = h.response({
+            return h.response({
                 status: 'fail',
                 message: 'User not found',
-            });
-            response.code(404);
-            return response;
+            }).code(404);
         }
 
         const user = rows[0];
         console.log('User found:', user); // Log user yang ditemukan
 
-        const response = h.response({
+        return h.response({
             status: 'success',
             data: user,
-        });
-        response.code(200);
-        return response;
+        }).code(200);
     } catch (error) {
         console.error('Error fetching user:', username, error); // Log error jika terjadi kesalahan
-        const response = h.response({
+        return h.response({
             status: 'fail',
             message: 'Failed to fetch user',
             error: error.message,
-        });
-        response.code(500);
-        return response;
+        }).code(500);
     }
 };
 

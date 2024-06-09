@@ -36,7 +36,7 @@ const routes = [
     },
     {
         method: 'GET',
-        path: '/users/{username}',
+        path: '/getUser/{username}',
         handler: getUser,
     }
 ];
