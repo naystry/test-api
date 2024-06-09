@@ -186,13 +186,11 @@ const editUser = async (request, h) => {
 
 const getUser = async (request, h) => {
     const { username } = request.params;
-
     try {
         // Query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
-        
         const data = await new Promise((resolve, reject) => {
-            pool.query(query, [username], (err, rows, field) => {
+            pool.query(query, [username], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -203,8 +201,6 @@ const getUser = async (request, h) => {
 
         // Pastikan rows tidak undefined sebelum mengaksesnya
         if (!data) {
-           // console.log('No rows returned from query');
-            // Lakukan sesuatu untuk menangani kasus ini, misalnya kembalikan respons 404
             const response = h.response({
                 status: 'fail',
                 message: 'user is not found!',
@@ -212,15 +208,6 @@ const getUser = async (request, h) => {
             response.code(400);
             return response;
         }
-
-        // if (rows.length === 0) {
-        //     console.log('User not found:', username); // Log jika user tidak ditemukan
-        //     return h.response({
-        //         status: 'fail',
-        //         message: 'User not found',
-        //     }).code(404);
-        // }
-            
                 const response = h.response({
                     status: 'success',
                     message: 'get successful',
