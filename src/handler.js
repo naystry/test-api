@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('promise-mysql');
+const tf = require('@tensorflow/tfjs-node');
+const path = require('path');
+const fs = require('fs');
 
 const createUnixSocketPool = async config => {
     return mysql.createPool({
@@ -182,46 +185,79 @@ const editUser = async (request, h) => {
 };
 
 const getUser = async (request, h) => {
-    const { username } = request.params; // Ambil nilai username dari parameter URL
+    const { username } = request.params;
 
     try {
         // Lakukan query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
-        const [user] = await pool.query(query, [username]);
+        const [rows] = await pool.query(query, [username]);
 
-        // Periksa apakah pengguna dengan username yang diberikan ditemukan
-        if (!user || user.length === 0) {
+        if (rows.length === 0) {
             console.log('User not found:', username); // Log jika user tidak ditemukan
-            return h.response({
+            const response = h.response({
                 status: 'fail',
-                message: 'Username tidak ditemukan'
-            }).code(404); // Gunakan kode status 404 untuk username tidak ditemukan
+                message: 'User not found',
+            });
+            response.code(404);
+            return response;
         }
 
-        // Jika username ditemukan, kembalikan data pengguna dalam respons
-        const userData = {
-            username: user[0].username,
-            gender: user[0].gender,
-            email: user[0].email
-            // Jika kamu ingin menambahkan kolom-kolom lain, tambahkan di sini
-        };
+        const user = rows[0];
+        console.log('User found:', user); // Log user yang ditemukan
 
-        console.log('Data pengguna ditemukan:', userData); // Log data pengguna yang ditemukan
-        return h.response({
+        const response = h.response({
             status: 'success',
-            message: 'Data pengguna ditemukan',
-            user: userData
-        }).code(200); // Gunakan kode status 200 untuk permintaan berhasil
+            data: user,
+        });
+        response.code(200);
+        return response;
     } catch (error) {
-        // Tangani kesalahan server
-        console.error('Gagal mengambil data pengguna:', error); // Log jika terjadi kesalahan
-        return h.response({
+        console.error('Error fetching user:', username, error); // Log error jika terjadi kesalahan
+        const response = h.response({
             status: 'fail',
-            message: 'Gagal mengambil data pengguna',
-            error: error.message
-        }).code(500); // Gunakan kode status 500 untuk kesalahan server
-    }
+            message: 'Failed to fetch user',
+            error: error.message,
+        });
+        response.code(500);
+        return response;
+    }
 };
 
 
-module.exports = { register, login, deleteUser, editUser, getUser };
+
+let classificationModel;
+let recommendationModel;
+const skinToneModelURL = 'https://storage.googleapis.com/skintone-ml/model_klasifikasi.json'; // Ganti dengan URL publik
+const recommendationModelURL = 'https://storage.googleapis.com/skintone-ml/model_rekomendasi.json'; // Ganti dengan URL publik
+const loadModels = async () => {
+    classificationModel = await tf.loadLayersModel(skinToneModelURL);
+    recommendationModel = await tf.loadLayersModel(recommendationModelURL);
+};
+
+loadModels();
+
+const classifySkintone = async (request, h) => {
+    const { image } = request.payload;
+    const tensor = tf.node.decodeImage(Buffer.from(image, 'base64'));
+    const prediction = classificationModel.predict(tensor.expandDims(0));
+    const classIndex = prediction.argMax(-1).dataSync()[0];
+
+    //await pool.query('INSERT INTO classifications (image, class_index) VALUES (?, ?)', [image, classIndex]);
+
+    return h.response({ classIndex }).code(200);
+};
+
+const recommendPalette = async (request, h) => {
+    const { classIndex } = request.payload;
+    const inputTensor = tf.tensor([[classIndex]]);
+    const recommendation = recommendationModel.predict(inputTensor);
+    const colors = recommendation.dataSync();
+
+    //await pool.query('INSERT INTO recommendations (class_index, colors) VALUES (?, ?)', [classIndex, JSON.stringify(colors)]);
+
+    return h.response({ colors }).code(200);
+};
+
+
+
+module.exports = { register, login, deleteUser, editUser, getUser, classifySkintone, recommendPalette};
