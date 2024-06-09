@@ -190,7 +190,16 @@ const getUser = async (request, h) => {
     try {
         // Query untuk mendapatkan data pengguna berdasarkan username
         const query = 'SELECT username, gender, email FROM users WHERE username = ?';
-        const [rows] = await pool.query(query, [username]);
+        
+        const rows = await new Promise((resolve, reject) => {
+            pool.query(query, [username], (err, rows, field) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows[0]);
+                }
+            });
+        });
 
         // Pastikan rows tidak undefined sebelum mengaksesnya
         if (!rows) {
