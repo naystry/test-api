@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('promise-mysql');
-const tf = require('@tensorflow/tfjs-node');
-const path = require('path');
-const fs = require('fs');
+// const tf = require('@tensorflow/tfjs-node');
+// const path = require('path');
+// const fs = require('fs');
 
 const createUnixSocketPool = async config => {
     return mysql.createPool({
@@ -263,4 +263,4 @@ const getUser = async (request, h) => {
 
 
 
-module.exports = { register, login, deleteUser, editUser, getUser, classifySkintone, recommendPalette};
+module.exports = { register, login, deleteUser, editUser, getUser};
