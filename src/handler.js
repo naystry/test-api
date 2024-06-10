@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('promise-mysql');
+const predictClassification = require("./services/inferenceService");
 // const tf = require('@tensorflow/tfjs-node');
 // const path = require('path');
 // const fs = require('fs');
@@ -222,6 +223,32 @@ const getUser = async (request, h) => {
     }
 };
 
+async function postPredictHandler(request, h) {
+    const { image } = request.payload;
+    const { model } = request.server.app;
+
+    const { label } = await predictClassification(model, image);
+
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+    
+    const data = {
+        "id": id,
+        "result": label,
+       // "suggestion": label == 'Cancer' ? 'Segera hubungi dokter' : 'None',
+        "createdAt": createdAt
+    }
+
+    //await storeData(id, data);
+
+    const response = h.response({
+        status: 'success',
+        message: 'Model is predicted successfully',
+        data
+    })
+    response.code(201);
+    return response;
+}
 // let classificationModel;
 // let recommendationModel;
 // const skinToneModelURL = 'https://storage.googleapis.com/skintone-ml/model_klasifikasi.json'; // Ganti dengan URL publik
@@ -257,4 +284,4 @@ const getUser = async (request, h) => {
 
 
 
-module.exports = { register, login, deleteUser, editUser, getUser}; //deleteUser belum di eksekusi
+module.exports = { register, login, deleteUser, editUser, getUser, postPredictHandler}; //deleteUser belum di eksekusi

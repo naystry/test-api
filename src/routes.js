@@ -1,4 +1,4 @@
-const { register, login, deleteUser, editUser, getUser } = require('./handler.js');
+const { register, login, deleteUser, editUser, getUser, postPredictHandler } = require('./handler.js');
 //const Joi = require('joi');
 
 const routes = [
@@ -38,7 +38,20 @@ const routes = [
         method: 'GET',
         path: '/getUser/{username}',
         handler: getUser,
-    }
+    },
+    {
+        path: '/predict',
+        method: 'POST',
+        handler: postPredictHandler,
+        options: {
+          payload: {
+    
+            allow: 'multipart/form-data',
+            multipart: true,
+            maxBytes: 1000000
+          }
+        }
+      }
 ];
 
 module.exports = routes;
