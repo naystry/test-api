@@ -14,8 +14,8 @@ const init = async () => {
             },
         },
     });
-    const model = await loadModel();
-    server.app.model = model;
+    // const model = await loadModel();
+    // server.app.model = model;
     server.route(routes);
 
     await server.start();

@@ -38,20 +38,20 @@ const routes = [
         method: 'GET',
         path: '/getUser/{username}',
         handler: getUser,
-    },
-    {
-        path: '/predict',
-        method: 'POST',
-        handler: postPredictHandler,
-        options: {
-          payload: {
+    }
+    // {
+    //     path: '/predict',
+    //     method: 'POST',
+    //     handler: postPredictHandler,
+    //     options: {
+    //       payload: {
     
-            allow: 'multipart/form-data',
-            multipart: true,
-            maxBytes: 1000000
-          }
-        }
-      }
+    //         allow: 'multipart/form-data',
+    //         multipart: true,
+    //         maxBytes: 1000000
+    //       }
+    //     }
+    //   }
 ];
 
 module.exports = routes;
