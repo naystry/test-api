@@ -1,4 +1,4 @@
-const { register, login, deleteUser, editUser, getUser, postPredictHandler } = require('./handler.js');
+const { register, login, deleteUser, editUser, getUser } = require('./handler.js');
 //const Joi = require('joi');
 
 const routes = [

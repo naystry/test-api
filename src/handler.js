@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('promise-mysql');
-const predictClassification = require("./services/inferenceService");
+//const predictClassification = require("./services/inferenceService");
 // const tf = require('@tensorflow/tfjs-node');
 // const path = require('path');
 // const fs = require('fs');

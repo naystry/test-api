@@ -1,6 +1,6 @@
 const Hapi = require('@hapi/hapi');
 const routes = require('./routes.js');
-const loadModel = require('./services/loadModel');
+//const loadModel = require('./services/loadModel');
 require('dotenv').config();
 
 
